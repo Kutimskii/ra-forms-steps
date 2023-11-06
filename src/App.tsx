@@ -1,36 +1,44 @@
 import { ReactElement} from 'react';
 import './App.css';
-import Action from './components/Action';
-import { useRef } from 'react';
+import Data from './components/Data';
 import {useState} from 'react';
-import { ActionProps } from './components/Action';
+import { ActionProps } from './components/Data';
+import Form from './components/Form';
 
 function App(): ReactElement {
   const [actions, setActions] = useState<ActionProps[]>([{
     dateSteps:null,
-    distanse:null,
+    distanse:0,
     id:null,
     remove:handlerDelete,
   }]);
-  let inputDate: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  let inputDistanse: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
-  function handlerAdd(e:React.FormEvent<HTMLFormElement>):void{
+  function handlerAdd(e:any,date:string|null|number, distanse:null|number):void{
     e.preventDefault();
-    setActions(function (prevActions: ActionProps[]):ActionProps[]{
-      if(inputDate.current && inputDistanse.current){
-        return ([...prevActions,{
-          dateSteps: inputDate.current.value,
-          distanse:inputDistanse.current.value,
-          id:performance.now(),
-          remove:handlerDelete,
-        }])
+    console.log(date)
+    setActions((prevActions: ActionProps[]):ActionProps[]=>{
+      console.log(prevActions)
+      if(date && distanse){
+        if(prevActions.find(el => el.dateSteps === date )){
+          let newIndex:number = prevActions.findIndex(el => el.dateSteps === date )
+          let newDistance:number|null= [...prevActions][newIndex].distanse
+          if (newDistance!==null){
+            [...prevActions][newIndex].distanse = +distanse + newDistance;
+          }
+          return [...prevActions]
+        }else{
+          return ([...prevActions,{
+            dateSteps: date,
+            distanse:+distanse,
+            id:performance.now(),
+            remove:handlerDelete,
+          }])
+        }
       }else{
         return [...prevActions]
       }
   })
 }
   function handlerDelete(element:ActionProps):void{
-    console.log(element)
     setActions(function (prevActions: ActionProps[]):ActionProps[]{
         return prevActions.filter(el=> el.id !== element.id)
     })
@@ -38,33 +46,9 @@ function App(): ReactElement {
 
   return (
     <div className="container">
-        <form name='steps' className='steps_form' onSubmit={handlerAdd}>
-          <div className='date_wrapper'>
-            <label htmlFor="date">Дата (ДД.ММ.ГГ)</label>
-            <input name="date" type="text" ref={inputDate} pattern='[0-9]{2}.[0-9]{2}.[0-9]{2}'/>
-          </div>
-          <div className='distanse_wrapper'>
-            <label htmlFor="distanse">Пройдено, км</label>
-            <input name="distanse" type="text" ref={inputDistanse}/>
-          </div>
-          <div className='button_wrapper'>
-            <button type='submit'>OK</button>
-          </div>
-        </form>
-        <div className='history_wrapper'>
-          <div className='history_headers'>
-            <p className='history_date header'>Дата (ДД.ММ.ГГ)</p>
-            <p className='history_distanse header'>Пройдено, км</p>
-            <p className='history_actions header'>Действия</p>
-          </div>
-          <ul className='history_steps'>
-            <Action items = {actions}/>
-          </ul>
-
-        </div>
-      <div>
-
-      </div>
+      <Form 
+      callback= {handlerAdd}/>
+      <Data items = {actions}/>
     </div>
   );
 }

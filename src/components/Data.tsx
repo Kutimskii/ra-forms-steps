@@ -1,14 +1,13 @@
 export interface ActionProps{
   dateSteps: string|null|number,
-  distanse: number|string|null,
+  distanse: number|null,
   id: number|null,
   remove:Function,
 }
 export interface ActionPropsHistory{
   items:ActionProps[];
 }
-function Action({items}:ActionPropsHistory){
-
+function Data({items}:ActionPropsHistory){
   let array = items.map((el,index) => {
     if(el.dateSteps===null){
       return
@@ -22,6 +21,17 @@ function Action({items}:ActionPropsHistory){
         </div>
       </li>
   });
-  return array.reverse()
+
+  return (
+  <div className='history_wrapper'>
+    <div className='history_headers'>
+      <p className='history_date header'>Дата (ДД.ММ.ГГ)</p>
+      <p className='history_distanse header'>Пройдено, км</p>
+      <p className='history_actions header'>Действия</p>
+    </div>
+      <ul className='history_steps'>
+        {array.reverse()}
+      </ul>
+  </div>);
 }
-export default Action;
+export default Data;
